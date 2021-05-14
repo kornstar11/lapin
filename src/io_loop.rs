@@ -193,16 +193,18 @@ impl IoLoop {
         if !self.ensure_setup()? {
             return Ok(());
         }
-        trace!(
-            "io_loop do_run; can_read={}, can_write={}, has_data={}",
+        log::info!(
+            "io_loop do_run; can_read={}, can_write={}, closed={}, error={}, has_data={}",
             self.socket_state.readable(),
             self.socket_state.writable(),
+            self.socket_state.closed(),
+            self.socket_state.error(),
             self.has_data()
         );
         if !self.can_read() && !self.can_write() {
             self.socket_state.wait();
         }
-        self.poll_socket_events()?;
+        self.poll_socket_events()?; //
         if self.stream.is_handshaking() {
             self.stream.handshake()?;
             if self.stream.is_handshaking() {
@@ -219,7 +221,7 @@ impl IoLoop {
             self.read()?;
         }
         self.handle_frames()?;
-        trace!(
+        log::info!(
             "io_loop do_run done; can_read={}, can_write={}, has_data={}, status={:?}",
             self.socket_state.readable(),
             self.socket_state.writable(),

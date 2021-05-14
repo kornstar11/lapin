@@ -901,6 +901,7 @@ impl Channel {
                 Box::new(resolver),
             )),
         );
+        self.wake();
         promise
     }
 

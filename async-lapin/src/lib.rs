@@ -134,12 +134,30 @@ async fn heartbeat(heartbeat: Heartbeat) {
     }
 }
 
+// async fn poll_read(socket: Arc<Async<TcpStreamWrapper>>, socket_state: SocketStateHandle) {
+//     socket.readable().await.unwrap();
+//     socket_state.send(SocketEvent::Readable);
+// }
+//
+// async fn poll_write(socket: Arc<Async<TcpStreamWrapper>>, socket_state: SocketStateHandle) {
+//     socket.writable().await.unwrap();
+//     socket_state.send(SocketEvent::Writable);
+// }
+
 async fn poll_read(socket: Arc<Async<TcpStreamWrapper>>, socket_state: SocketStateHandle) {
-    socket.readable().await.unwrap();
+    if let Err(e) = socket.readable().await {
+        log::error!("socket.readable returns error {:?}", e);
+        socket_state.send(SocketEvent::Error);
+        return;
+    }
     socket_state.send(SocketEvent::Readable);
 }
 
 async fn poll_write(socket: Arc<Async<TcpStreamWrapper>>, socket_state: SocketStateHandle) {
-    socket.writable().await.unwrap();
+    if let Err(e) = socket.writable().await {
+        log::error!("socket.writable returns error {:?}", e);
+        socket_state.send(SocketEvent::Error);
+        return;
+    }
     socket_state.send(SocketEvent::Writable);
 }

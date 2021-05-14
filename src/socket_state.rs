@@ -83,7 +83,7 @@ impl SocketState {
         slot: Slot,
     ) -> Result<()> {
         self.writable = self.handle_io_result(result, self.writable)?;
-        if !self.writable {
+        if !self.writable { //?
             reactor.poll_write(slot);
         }
         Ok(())
@@ -120,7 +120,7 @@ impl SocketState {
     }
 
     fn handle_event(&mut self, event: SocketEvent) {
-        trace!("Got event for socket: {:?}", event);
+        log::info!("Got event for socket: {:?}", event);
         match event {
             SocketEvent::Readable => self.readable = true,
             SocketEvent::Writable => self.writable = true,
